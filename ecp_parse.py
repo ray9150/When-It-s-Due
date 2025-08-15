@@ -5,13 +5,11 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-import string
 
 # base url
 base_url = "https://programs-courses.uq.edu.au/course.html?course_code="
 
 def main():
-
     # while True:
     #get course code, check if valid
         ccode = input("What course code would you like to look at: ")
@@ -34,7 +32,7 @@ def main():
         
         # finding ecp link
         #let user choose
-        print("The following offerings are available:")
+        print("\nThe following offerings are available:")
         offerings = cur_offeringss.findAll(class_="course-offering-year")
 
         for counter, c in enumerate(offerings, start=1):
@@ -53,19 +51,35 @@ def main():
         temp = ecpsoup.find(id="assessment--section").find_all('tr')
 
         collected_data = []
-        for t in temp:
+        for c, t in enumerate(temp):
+            content = ""
+            if c > 0:
+                label = t.find('a').contents[0]
             stuff = t.findAll('p')
-            print(stuff)
-            print("/////////////////////////////////////////")
             # now regex for due dates and titles
             for s in stuff:
                 name_n_datetime = re.search(r"(.*\s)?\d{1,2}\/\d{2}\/\d{4}\s\d{1,2}:\d{1,2}\s[ap]m", s.text)
                 if name_n_datetime is not None:
                     separated = re.split(r"(\d{1,2}\/\d{2}\/\d{4}\s\d{1,2}:\d{1,2}\s[ap]m)", name_n_datetime.string.strip())
-                    separated = [x for x in separated if x != ""]
-                    print(separated)
+                    separated = [x.strip() for x in separated if x != ""]
+                    if len(separated) == 1:
+                        separated.insert(0, label)
+                    collected_data.append(separated)
+        
+        print("\nI was able to parse the following due dates:")
+        for x in collected_data:
+            print(x[0] + ": " + x[1])
+        change_name = input("Do you wish to change the names of any of the above? (Y/N): ")
+        if change_name.lower() == "y":
+            name_change(collected_data)
     
-
+def name_change(ori_list):
+    for row in ori_list:
+        print("Name: " + row[0])
+        print("Due Date: " + row[1])
+        new_name = input("Type new name to change, or just press ENTER to skip: ")
+        if new_name != "":
+            row[0] = new_name
 
 if __name__ == "__main__":
     main()
