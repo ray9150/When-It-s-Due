@@ -5,6 +5,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import string
 
 # base url
 base_url = "https://programs-courses.uq.edu.au/course.html?course_code="
@@ -58,8 +59,11 @@ def main():
             print("/////////////////////////////////////////")
             # now regex for due dates and titles
             for s in stuff:
-                uh = re.search(r"\s*\d{1,2}\/\d{2}\/\d{4}", s.text)
-                print(uh)
+                name_n_datetime = re.search(r"(.*\s)?\d{1,2}\/\d{2}\/\d{4}\s\d{1,2}:\d{1,2}\s[ap]m", s.text)
+                if name_n_datetime is not None:
+                    separated = re.split(r"(\d{1,2}\/\d{2}\/\d{4}\s\d{1,2}:\d{1,2}\s[ap]m)", name_n_datetime.string.strip())
+                    separated = [x for x in separated if x != ""]
+                    print(separated)
     
 
 
