@@ -39,12 +39,12 @@ def ecpparser():
         for counter, c in enumerate(offerings, start=1):
             print(str(counter) + ". " + c.text)
 
-        choice = int(input("Which option would you like to view: "))
-        while choice < 1 or (choice - 1) > counter:
+        choice = input("Which option would you like to view: ")
+        while (not choice.isnumeric()) or int(choice) < 1 or (int(choice) - 1) > counter:
             choice = int(input("Try again: "))
 
         all_profiles = cur_offeringss.findAll('a', class_="profile-available", href=True)
-        ecp_url = all_profiles[choice - 1]['href']
+        ecp_url = all_profiles[int(choice) - 1]['href']
 
         # now try accessing the current ecp
         ecp_results = requests.get(ecp_url)
@@ -84,7 +84,7 @@ def ecpparser():
     
 def name_change(ori_list):
     for row in ori_list:
-        print("Name: " + row[0])
+        print("\nName: " + row[0])
         print("Due Date: " + row[1])
         new_name = input("Type new name to change, or just press ENTER to skip: ")
         if new_name != "":

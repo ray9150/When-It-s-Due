@@ -45,39 +45,29 @@ def main():
     try:
         service = build("tasks", "v1", credentials=creds)
         # Call the Tasks API
-        # results = service.tasklists().list(maxResults=10).execute()
-        # items = results.get("items", [])
-
-        # if not items:
-        #     print("No task lists found.")
-        #     return
-
-        # print("Task lists:")
-        # for item in items:
-        #     print(f"{item['title']} ({item['id']})")
-
-        #     uh = service.tasks().list(tasklist=item['id']).execute()
-        #     print(uh)
-
+   
         task_dues = ecpparser()
         if task_dues is None:
            return
-        else:
-           print(task_dues)
+
+        tlist_name = input("\nGive your task list a name: ")
 
         tasklist_body = {
-           'title': 'Testing'
+           'title': tlist_name
         }
         new_list = service.tasklists().insert(body=tasklist_body).execute()
-        print(new_list)
+
+        print("\nPlease wait...")
 
         for item in task_dues:
-           print(item[1].isoformat('T'))
            task = {
               'title': item[0],
-              'due': item[1].isoformat('T')
+              'due': item[1].isoformat('T'),
+              'notes': "Due at " + item[2]
            }
            service.tasks().insert(body=task, tasklist=new_list['id']).execute()
+        
+        print("\nDone!")
 
 
     except HttpError as error:
