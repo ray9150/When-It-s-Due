@@ -7,6 +7,7 @@
 
 import datetime
 import os.path
+from ecp_parse import ecpparser
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -15,7 +16,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/tasks"]
 
 
 def main():
@@ -37,15 +38,46 @@ def main():
           "credentials.json", SCOPES
       )
       creds = flow.run_local_server(port=0)
-    # Save the credentials for the next run
-    with open("token.json", "w") as token:
-      token.write(creds.to_json())
+    # # Save the credentials for the next run
+    # with open("token.json", "w") as token:
+    #   token.write(creds.to_json())
 
     try:
-        service = build("calendar", "v3", credentials=creds)
+        service = build("tasks", "v1", credentials=creds)
+        # Call the Tasks API
+        # results = service.tasklists().list(maxResults=10).execute()
+        # items = results.get("items", [])
 
-    # authentication done until here
-            # everything here
+        # if not items:
+        #     print("No task lists found.")
+        #     return
+
+        # print("Task lists:")
+        # for item in items:
+        #     print(f"{item['title']} ({item['id']})")
+
+        #     uh = service.tasks().list(tasklist=item['id']).execute()
+        #     print(uh)
+
+        task_dues = ecpparser()
+        if task_dues is None:
+           return
+        else:
+           print(task_dues)
+
+        tasklist_body = {
+           'title': 'Testing'
+        }
+        new_list = service.tasklists().insert(body=tasklist_body).execute()
+        print(new_list)
+
+        for item in task_dues:
+           print(item[1].isoformat('T'))
+           task = {
+              'title': item[0],
+              'due': item[1].isoformat('T')
+           }
+           service.tasks().insert(body=task, tasklist=new_list['id']).execute()
 
 
     except HttpError as error:

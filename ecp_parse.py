@@ -5,11 +5,12 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import datetime
 
 # base url
 base_url = "https://programs-courses.uq.edu.au/course.html?course_code="
 
-def main():
+def ecpparser():
     # while True:
     #get course code, check if valid
         ccode = input("What course code would you like to look at: ")
@@ -72,6 +73,14 @@ def main():
         change_name = input("Do you wish to change the names of any of the above? (Y/N): ")
         if change_name.lower() == "y":
             name_change(collected_data)
+
+        for row in collected_data:
+            row.append(re.search(r"\d{1,2}:\d{1,2}\s[ap]m", row[1]).group())
+            tempdatetime = datetime.datetime.strptime(row[1].upper(), "%d/%m/%Y %I:%M %p")
+            tempdatetime = tempdatetime.replace(tzinfo=datetime.timezone.utc)
+            row[1] = tempdatetime
+            
+        return collected_data
     
 def name_change(ori_list):
     for row in ori_list:
@@ -82,4 +91,4 @@ def name_change(ori_list):
             row[0] = new_name
 
 if __name__ == "__main__":
-    main()
+    ecpparser()
