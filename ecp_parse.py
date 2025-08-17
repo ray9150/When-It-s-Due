@@ -13,7 +13,7 @@ base_url = "https://programs-courses.uq.edu.au/course.html?course_code="
 def ecpparser():
     # while True:
     #get course code, check if valid
-        ccode = input("What course code would you like to look at: ")
+        ccode = input("\nWhat course code would you like to look at: ")
         response = requests.get(base_url + ccode)
         resoup = BeautifulSoup(response.content, 'html.parser')
         content = resoup.find(id="course-notfound")
